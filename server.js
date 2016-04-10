@@ -10,7 +10,7 @@ var server = http.createServer(app);
 
 
 
-var port = process.env.PORT || 8080;
+var port = 8080;process.env.PORT || 8080;
 
 MongoClient.connect('mongodb://localhost:27017/moticat', function(err, db) {
 	"use strict";
@@ -18,7 +18,7 @@ MongoClient.connect('mongodb://localhost:27017/moticat', function(err, db) {
 
 	if(err) throw err;
 
-	var port = process.env.PORT || 8888;
+	var port = 8080;//process.env.PORT || 8888;
 
 	//app.set('socketio', io);
 	app.set('server', server)
