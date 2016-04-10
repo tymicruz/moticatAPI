@@ -5,16 +5,20 @@ var exec = require('child_process').exec;
 module.exports = function(app, db) {
 
 	app.get('/', function(req, res){
-		res.send('welcome to moticat');
+		res.send('welcome to moticat, son');
 		//res.sendfile('./public/views/index.html'); //load our public/index.html file
 
 	});
 
-	app.get('/videos', function(req, res){
+	app.get('/videos/:uid', function(req, res){
 		var videos = db.collection('videos');
 
-		videos.find({}).toArray(function(err, docs) {
-	
+		var uid = req.params.uid;
+
+		console.log("video request from " + uid);
+
+		videos.find({}).toArray(function(err, docs) {		
+
 			if(err) throw err;
 
 			res.send(docs);
