@@ -5,15 +5,113 @@ var exec = require('child_process').exec;
 module.exports = function(app, db) {
 
 	app.get('/', function(req, res){
-		res.send('welcome to moticat, son');
+		res.send('welcome to moticat, son.');
 		//res.sendfile('./public/views/index.html'); //load our public/index.html file
 
 	});
 
-	app.get('/videos/:uid', function(req, res){
+	app.get('/video/:uid', function(req, res){
 		var videos = db.collection('videos');
 
-		var uid = req.params.uid;
+		var uid = req.params.uid; //user id
+
+		console.log("video request from " + uid);
+
+		videos.count(function(err, count){
+
+			var random = Math.floor(Math.random() * (count));
+
+			videos.find({}).skip(random).toArray(function(err, docs) {		
+
+				if(err) throw err;
+
+				res.send(docs[0]);
+			});
+
+		});
+
+	});
+
+
+	app.get('/quote/:uid', function(req, res){
+		var quotes = db.collection('quotes');
+
+		var uid = req.params.uid; //user id
+
+		console.log("quote request from " + uid);
+
+		quotes.count(function(err, count){
+		
+			//var random = Math.floor(Math.random() * ((count + 1) - 1)) + 1;//ids must be numbers
+			var random = Math.floor(Math.random() * (count));
+
+			console.log(random);
+
+			quotes.find({}).skip(random).toArray(function(err, docs) {		
+
+				if(err) throw err;
+
+				res.send(docs[0]);
+			});
+
+		});
+	});
+
+	app.get('/combo/:uid', function(req, res){
+		var videos = db.collection('videos');
+		var quotes = db.collection('quotes');
+
+		var user = req.params.uid;
+
+		console.log("combo request from " + user);
+
+		//get count of quotes to use to find a random quote
+		quotes.count(function(err, qcount){
+
+			//choose random number to choose random quote
+			var qrandom = Math.floor(Math.random() * (qcount));
+
+			console.log(qrandom + "th quote chosen");
+
+			quotes.find({}).skip(qrandom).toArray(function(err, docs) {		
+
+				if(err) throw err;
+
+				var combo = {};
+
+				//random quote is here
+				combo["quote"] = docs[0];
+
+				//get count of videos to use to find a random video
+				videos.count(function(err, vcount){
+
+					//choose random number to choose random video
+					var vrandom = Math.floor(Math.random() * (vcount));
+
+					console.log(vrandom + "th video chosen");
+
+					videos.find({}).skip(vrandom).toArray(function(err, docs) {		
+
+						if(err) throw err;
+
+						//random video is here
+						combo["video"] = docs[0];
+
+						res.send(combo);
+					});
+
+				});
+			});
+
+		});
+
+	});
+
+	app.get('/video/:uid/:cid', function(req, res){
+		var videos = db.collection('videos');
+
+		var uid = req.params.uid; //user id
+		var cid = req.params.cid; //category id
 
 		console.log("video request from " + uid);
 
@@ -25,175 +123,39 @@ module.exports = function(app, db) {
 		});
 	});
 
-	app.get('/quotes', function(req, res){
-		var quotes = db.collection('quotes');
 
-		quotes.find({}).toArray(function(err, docs) {
+app.put('/user/:uid', function(req, res){
 
-			if(err) throw err;
+	console.log("add user if non-existence");
+	var users = db.collection('users');
 
-			res.send(docs);
-		});
-	});
+	var uid = req.params.uid;
+		//var burger = req.body;
+		//console.log(JSON.stringify(burger));
+		//var burgerID = burger._id;
 
+		//console.log("id is " + burgerID);
 
+		//var obID = new ObjectID(burgerID);
 
+		//var operator = { $set : {array : burger.array, editDate : burger.editDate, bun : burger.bun}};
 
-
-
-	// app.get('/api/others', function(req, res){
-	// 	var others = db.collection('others');
-
-	// 	others.find({}).toArray(function(err, docs) {
-
-	// 		if(err)
-	// 		{
-	// 			throw err;
-	// 		}	
-
-	// 		res.send(docs);
-	// 	});
-	// });
-
-	// app.post('/api/burgers', function(req, res){
-
-	// 	var burgers = db.collection('burgers');
-	// 	var burgerData = req.body;
-
-	// 	burgers.insert(burgerData, function(err, inserted){
-
-	// 		if (err) throw err;
-
-
-	// 		console.log("created: " + JSON.stringify(inserted.ops[0]._id));
-
-	// 		res.send(inserted.ops[0]._id);
-
-	// 		io.sockets.emit('newburger', inserted.ops[0]._id);
-	// 		//exec('start "" "taskkill" "/im" "iexplore.exe"');
-	// 	});
-	// });
-
-	// app.get('/api/burgers/:burgerID', function(req, res){
-
-	// 	var burgers = db.collection('burgers');
-
-	// 	var burgerID = req.params.burgerID;
-
-	// 	var obID = new ObjectID(burgerID);
-
-	// 	burgers.findOne({_id: obID}, function(err, doc){
-
-	// 		if(err)
-	// 		{
-	// 			res.send(400, "NOT FOUND")
-	// 			throw err;
-	// 		}
-
-	// 		console.log("found: " + JSON.stringify(doc));
-	// 		res.send(doc);
-			
-	// 	});
-	// });
-
-	// app.get('/api/burgers?:numBurgers', function(req, res){
-
-	// 	var burgers = db.collection('burgers');
-
-	// 	//make sure this is actually a number later on
-	// 	//depends on client typing valid
-	// 	console.log(req.params.numBurgers);
-	// 	var numBurgers = parseInt(req.params.numBurgers);
-	// 	console.log(numBurgers);
-
-	// 	burgers.find().sort({"editDate" : -1}).limit(10).toArray(function(err, docs){
-
-	// 		if(err)
-	// 		{
-	// 			res.send(400, "NOT FOUND")
-	// 			throw err;
-	// 		}
-
-	// 		//console.log("found: " + JSON.stringify(docs));
-	// 		res.send(docs);
-
-	// 	});
-
-	// });
-
-
-	// app.put('/api/burgers', function(req, res){
-
-	// 	console.log("update try:")
-	// 	var burgers = db.collection('burgers');
-	// 	var burger = req.body;
-	// 	console.log(JSON.stringify(burger));
-	// 	var burgerID = burger._id;
-
-	// 	console.log("id is " + burgerID);
-
-	// 	var obID = new ObjectID(burgerID);
-
-	// 	var operator = { $set : {array : burger.array, editDate : burger.editDate, bun : burger.bun}};
-
-	// 	burgers.update({_id: obID}, operator, function(err, doc){
-
-	// 		if(err)
-	// 		{
-	// 			res.send(400, "NOT FOUND")
-	// 			throw err;
-	// 		}
-
-	// 		console.log("found: " + JSON.stringify(doc));
-	// 		res.send(doc);
-	// 		io.emit('burgerupdated', doc);
-	// 	});
-	// });
-
-app.put('/user/:id', function(req, res){
-
-		console.log("add user if non-existence")
-		var users = db.collection('users');
-
-		
-		var burger = req.body;
-		console.log(JSON.stringify(burger));
-		var burgerID = burger._id;
-
-		console.log("id is " + burgerID);
-
-		var obID = new ObjectID(burgerID);
-
-		var operator = { $set : {array : burger.array, editDate : burger.editDate, bun : burger.bun}};
-
-		burgers.update({_id: obID}, operator, function(err, doc){
+		burgers.insert({_id: uid}, function(err, doc){
 
 			if(err)
 			{
-				res.send(400, "NOT FOUND")
-				throw err;
+				//res.send(400, "NOT FOUND")
+				//throw err;
+				console.log("")
+				return;
 			}
 
 			console.log("found: " + JSON.stringify(doc));
 			res.send(doc);
-			io.emit('burgerupdated', doc);
+
 		});
-	});
 
-	// app.delete('/api/burgers/:burgerID', function(req,res){
-	// 	var burgers = db.collection('burgers');
 
-	// 	var obID = new ObjectID(req.params.burgerID);
+});
 
-	// 	burgers.remove({_id : obID}, function(err, doc){
-	// 		if(err){
-	// 			throw err;
-	// 		}
-	// 		console.log("removed:");
-	// 		console.log(JSON.stringify(doc));
-	// 		res.send(doc);
-	// 		io.emit('burgerdeleted', doc);
-	// 		//exec('start "" "iexplore" "netflix.com"');
-	// 	});
-	// });
-};
+}
