@@ -130,31 +130,20 @@ app.put('/user/:uid', function(req, res){
 	var users = db.collection('users');
 
 	var uid = req.params.uid;
-		//var burger = req.body;
-		//console.log(JSON.stringify(burger));
-		//var burgerID = burger._id;
-
-		//console.log("id is " + burgerID);
-
-		//var obID = new ObjectID(burgerID);
-
-		//var operator = { $set : {array : burger.array, editDate : burger.editDate, bun : burger.bun}};
-
-		burgers.insert({_id: uid}, function(err, doc){
+	
+		users.insert({_id: uid}, function(err, doc){
 
 			if(err)
 			{
-				//res.send(400, "NOT FOUND")
-				//throw err;
-				console.log("")
+				console.log(uid + " already exists");
+				res.send("This mf, " + uid + ", already exists.");
 				return;
 			}
-
-			console.log("found: " + JSON.stringify(doc));
-			res.send(doc);
+			//JSON.stringify(doc)
+			console.log("welcome " + uid);
+			res.send("Welcome to Moti, " + uid + ".");
 
 		});
-
 
 });
 
