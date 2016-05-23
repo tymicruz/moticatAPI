@@ -4,10 +4,25 @@ var exec = require('child_process').exec;
 
 module.exports = function(app, db) {
 
+	var stop_counter = 0;
+
 	app.get('/', function(req, res){
 		res.send('welcome to moticat, son.');
 		//res.sendfile('./public/views/index.html'); //load our public/index.html file
 
+	});
+
+	app.get('/north', function(req, res){
+		var a = Array.apply(null, Array(46)).map(Number.prototype.valueOf,0);
+
+		a[stop_counter] = 1;
+
+		stop_counter+=1;
+
+		stop_counter = stop_counter % 46;
+
+		res.send(a.toString());
+		
 	});
 
 	app.get('/video/:uid', function(req, res){
@@ -139,12 +154,12 @@ app.put('/user/:uid', function(req, res){
 				res.send("This mf, " + uid + ", already exists.");
 				return;
 			}
-			//JSON.stringify(doc)
+			
 			console.log("welcome " + uid);
 			res.send("Welcome to Moti, " + uid + ".");
 
 		});
 
-});
+	});
 
 }
